@@ -8,8 +8,8 @@ const jobSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true, 
-        enum: ['carpenter', 'mason', 'plumber', 'helper', 'electrician']
+        required: true,
+        enum: ['carpenter', 'mason', 'plumber', 'helper', 'electrician', 'construction']
     },
     wagesPerDay: {
         type: Number,
@@ -30,22 +30,39 @@ const jobSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: [true, 'Phone number is required']
+        required: [true, 'Phone number is required'],
+        trim: true,
+        match: [/^[0-9]{10}$/, 'Please Enter a Valid Number']
     },
     address: {
-    type: String,
-    required: true
-  },
-  // Geospatial Data (MongoDB GeoJSON format)
-  location: {
-    type: {
-        type: 'String',
-        enum: ['Point'],
-        default: 'Point'
+        type: String,
+        required: true
     },
-  }
+    // Geospatial Data (MongoDB GeoJSON format)
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+    status: {
+        type: String,
+        enum: ['open', 'filled'],
+        default: 'open'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        expires: 172800 // 48 hrs
+    }
 })
 
-const job = mongoose.model('job', jobSchema);
+// this indexing helps us to find nearby location upto 5-10 km of radius
+jobSchema.index({ location: '2dsphere' });
 
-module.exports = job;
+module.exports = mongoose.model('Job', jobSchema);

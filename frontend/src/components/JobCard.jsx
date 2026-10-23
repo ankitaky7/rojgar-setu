@@ -5,7 +5,7 @@ export const JobCard = ({ job }) => {
  const whatsappMsg = encodeURIComponent(
   `Hello ${job.employerName}, I came across your job post on RojgarSetu: "${job.title}". Is this position still open?`
 );
-
+d
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       {/* Category & Wages */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios'
 import { useUserLocation } from '../hooks/useUserLocation';
 import { JobCard } from '../components/JobCard';
 
@@ -18,7 +18,7 @@ export default function Home() {
         try {
           setJobsLoading(true);
           setJobsError('');
-          const res = await axios.get('http://localhost:5000/api/jobs/nearby', {
+          const res = await api.get('http://localhost:8000/api/jobs/nearby', {
             params: {
               latitude: coords.latitude,
               longitude: coords.longitude,
@@ -28,7 +28,7 @@ export default function Home() {
           setJobs(res.data.data || []);
         } catch (err) {
           console.error("Backend fetch error:", err);
-          setJobsError(err.response?.data?.message || 'Jobs load karne mein samasya aayi.');
+          setJobsError(err.response?.data?.message || 'Error in Loading Job.');
         } finally {
           setJobsLoading(false);
         }
@@ -45,13 +45,13 @@ export default function Home() {
 
   return (
     <div className="space-y-4 pb-12">
-      
+
       {/* 1. Location Status Strip */}
       <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
         {locLoading && (
           <div className="flex items-center justify-center gap-2 text-amber-600 text-xs py-1">
             <div className="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-            <span>Aapki location dhoondi ja rahi hai...</span>
+            <span>We are currently verifying your location...</span>
           </div>
         )}
 
@@ -71,7 +71,8 @@ export default function Home() {
           <div className="flex items-center justify-between text-xs text-emerald-800">
             <div className="flex items-center gap-1.5 font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>10 KM ke daayre mein active</span>
+              <span>Active within a 10 km radius.
+              </span> 
             </div>
             <span className="font-mono text-slate-400 text-[11px]">
               {coords.latitude.toFixed(3)}, {coords.longitude.toFixed(3)}
@@ -86,11 +87,10 @@ export default function Home() {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 text-xs rounded-full font-bold whitespace-nowrap transition ${
-              selectedCategory === cat
+            className={`px-3 py-1.5 text-xs rounded-full font-bold whitespace-nowrap transition ${selectedCategory === cat
                 ? 'bg-amber-600 text-white shadow-sm'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-            }`}
+              }`}
           >
             {cat}
           </button>
@@ -102,7 +102,7 @@ export default function Home() {
         {jobsLoading && (
           <div className="text-center py-10 text-slate-500 text-xs">
             <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            Aas-paas ke kaam dhoondh rahe hain...
+            Finding Nearby Jobs...
           </div>
         )}
 
@@ -114,9 +114,9 @@ export default function Home() {
 
         {!jobsLoading && !jobsError && coords.latitude && filteredJobs.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
-            <p className="font-bold text-slate-800 text-sm">Koi kaam nahi mila</p>
+            <p className="font-bold text-slate-800 text-sm">No Jobs have been Found</p>
             <p className="text-xs text-slate-400 mt-1">
-              Aapke aas-paas is category mein abhi koi requirement nahi hai.
+              No requirements found in this category near your location.
             </p>
           </div>
         )}

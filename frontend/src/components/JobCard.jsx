@@ -2,10 +2,10 @@ import React from 'react';
 
 export const JobCard = ({ job }) => {
   // WhatsApp prefilled message
- const whatsappMsg = encodeURIComponent(
-  `Hello ${job.employerName}, I came across your job post on RojgarSetu: "${job.title}". Is this position still open?`
-);
-d
+  const whatsappMsg = encodeURIComponent(
+    `Hello ${job.employerName}, I came across your job post on RojgarSetu: "${job.title}". Is this position still open?`
+  );
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
       {/* Category & Wages */}
@@ -40,7 +40,7 @@ d
           href={`tel:${job.phone}`}
           className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition"
         >
-          <span>📞</span> Call Karein
+          <span>📞</span> Call
         </a>
 
         <a

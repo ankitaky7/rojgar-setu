@@ -7,14 +7,14 @@ const createJob = async (req, res) => {
             category,
             wagesPerDay,
             workersNeeded,
-            phone,
+            durationDays,
             employerName,
+            phone,
             address,
-            longitude,
-            latitude
+            location,
         } = req.body;
 
-        if (!title || !category || !wagesPerDay || !workersNeeded || !phone || !employerName || !address || !longitude || !latitude) {
+        if (!title || !category || !wagesPerDay || !workersNeeded || !phone || !employerName || !address || !location || !location.coordinates) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -23,18 +23,17 @@ const createJob = async (req, res) => {
             category,
             wagesPerDay,
             workersNeeded,
-            phone,
+            durationDays,
             employerName,
+            phone,
             address,
-            location: {
-                type: 'Point',
-                coordinates: [parseFloat(longitude), parseFloat(latitude)]
-            }
+            location
         });
 
         res.status(201).json({ message: "Job Created successfully" });
 
     } catch (error) {
+        console.error("🔥 Mongoose Error:", error);
         res.status(500).json({ message: "Error in Job Creating", error: error.message });
     }
 }

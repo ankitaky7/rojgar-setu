@@ -45,7 +45,6 @@ export default function Home() {
 
   return (
     <div className="space-y-4 pb-12">
-
       {/* 1. Location Status Strip */}
       <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
         {locLoading && (

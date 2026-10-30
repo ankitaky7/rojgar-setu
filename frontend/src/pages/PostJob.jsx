@@ -20,7 +20,7 @@ function PostJob() {
         phone: "",
         address: ""
     });
-
+    const [showSuccess, setShowSuccess] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
@@ -70,11 +70,14 @@ function PostJob() {
         try {
             setSubmitting(true);
             await api.post("/jobs/create", payload);
-            alert("Job Created Successfully!");
-            navigate('/');
+            setShowSuccess(true);
+            setTimeout(() => {
+                navigate('/');
+            }, 2000);
         } catch (error) {
+            // console.error("Full Error Object:", error);
             console.error("Error in Adding Job");
-            setSubmitError(error.response?.data?.message || "Failed to post job. Please try again.");
+            setSubmitError(error.response?.data?.message || error.message || "Failed to post job. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -82,6 +85,16 @@ function PostJob() {
 
     return (
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm max-w-md mx-auto">
+            {showSuccess && (
+                <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
+                    <div role="alert" className="alert alert-success shadow-lg flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-semibold text-sm">Job Created Successfully!</span>
+                    </div>
+                </div>
+            )}
             <h2 className="text-xl font-black text-slate-900 mb-1">Post a New Job</h2>
             <p className="text-xs text-slate-500 mb-4">Connect instantly with nearby skilled workers and laborers.</p>
 

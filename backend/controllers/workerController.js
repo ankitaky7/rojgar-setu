@@ -54,6 +54,36 @@ const registerOrUpdateWorker = async (req, res) => {
     }
 }
 
+const toggleWorkerAvailability = async (req, res) => {
+    try {
+        const { workerId, isOnline } = req.body;
+        
+        if (!workerId || typeof isOnline !== 'boolean') {
+            return res.status(400).json({ message: "Worker ID and status are required" })
+        }
+
+        const worker = await Worker.findByIdAndUpdate(
+            workerId,
+            {isOnline},
+            {returnDocument: "after"}
+        );
+
+        if(!worker) {
+            return res.status(404).json({message: "Worker not found."});
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Duty status updated to ${isOnline ? 'Online' : 'Offline'}.`,
+            worker
+        })
+
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update availability", error: error.message });
+    }
+}
+
 module.exports = {
-    registerOrUpdateWorker
+    registerOrUpdateWorker,
+    toggleWorkerAvailability
 };

@@ -12,7 +12,7 @@ function Navbar() {
   // LocalStorage check karein agar worker pehle se login/register ho chuka hai
   useEffect(() => {
     const savedWorker = localStorage.getItem('rojgar_worker');
-    if (savedWorker) {
+    if (savedWorker && savedWorker !== "undefined") {
       try {
         setCurrentWorker(JSON.parse(savedWorker));
       } catch (error) {

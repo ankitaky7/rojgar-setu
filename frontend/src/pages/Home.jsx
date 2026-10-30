@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios'
 import { useUserLocation } from '../hooks/useUserLocation';
 import { JobCard } from '../components/JobCard';
+import { WorkerDashboardStrip } from '../components/WorkerDashboardStrip';
 
 const CATEGORIES = ['All', 'Mason', 'Plumber', 'Carpenter', 'Electrician', 'Helper', 'Construction'];
 
@@ -11,14 +12,29 @@ export default function Home() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [currentWorker, setCurrentWorker] = useState(null);
 
+  // Check if a worker profile is stored in localStorage
+  useEffect(() => {
+    const savedWorker = localStorage.getItem('rojgar_worker');
+    if (savedWorker && savedWorker !== 'undefined') {
+      try {
+        setCurrentWorker(JSON.parse(savedWorker));
+      } catch (error) {
+        console.error("Failed to parse worker session", error);
+        localStorage.removeItem('rojgar_worker');
+      }
+    }
+  }, [])
+
+  // Fetch nearby jobs
   useEffect(() => {
     if (coords.latitude && coords.longitude) {
       const getNearbyJobs = async () => {
         try {
           setJobsLoading(true);
           setJobsError('');
-          const res = await api.get('http://localhost:8000/api/jobs/nearby', {
+          const res = await api.get('/jobs/nearby', {
             params: {
               latitude: coords.latitude,
               longitude: coords.longitude,
@@ -45,6 +61,14 @@ export default function Home() {
 
   return (
     <div className="space-y-4 pb-12">
+      {/* 0. Worker Dashboard Strip (Agar worker profile active hai) */}
+      {currentWorker && (
+        <WorkerDashboardStrip
+          worker={currentWorker}
+          onStatusChange={(updatedWorker) => setCurrentWorker(updatedWorker)}
+        />
+      )}
+
       {/* 1. Location Status Strip */}
       <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
         {locLoading && (
@@ -71,7 +95,7 @@ export default function Home() {
             <div className="flex items-center gap-1.5 font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>Active within a 10 km radius.
-              </span> 
+              </span>
             </div>
             <span className="font-mono text-slate-400 text-[11px]">
               {coords.latitude.toFixed(3)}, {coords.longitude.toFixed(3)}
@@ -87,8 +111,8 @@ export default function Home() {
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             className={`px-3 py-1.5 text-xs rounded-full font-bold whitespace-nowrap transition ${selectedCategory === cat
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
               }`}
           >
             {cat}

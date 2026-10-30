@@ -27,7 +27,11 @@ export const useUserLocation = () => {
                 setError("Location permission denied. Please allow location to see local jobs.");
                 setLoading(false);
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { 
+                enableHighAccuracy: true, 
+                timeout: 10000, 
+                maximumAge: 60000        // 1 minute tak purani accurate location cache use karega (jump nahi hoga)
+            }
         );
     };
 

@@ -21,6 +21,7 @@ export const WorkerDashboardStrip = ({ worker, onStatusChange }) => {
             // local storage sync
             const updatedWorker = { ...worker, isOnline: newStatus };
             localStorage.setItem('rojgar_worker', JSON.stringify(updatedWorker));
+            window.dispatchEvent(new Event('workerSessionUpdated'));
 
             if (onStatusChange) {
                 onStatusChange(updatedWorker);
@@ -75,7 +76,8 @@ export const WorkerDashboardStrip = ({ worker, onStatusChange }) => {
                 <button
                     onClick={() => {
                         localStorage.removeItem('rojgar_worker');
-                        window.location.reload();
+                        window.dispatchEvent(new Event('workerSessionUpdated'));
+                        // window.location.reload();
                     }}
                     className="text-red-500 hover:underline"
                 >

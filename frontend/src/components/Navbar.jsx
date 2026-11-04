@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import {WorkerModal} from './WorkerModal';
-import {useUserLocation} from '../hooks/useUserLocation'
+import { WorkerModal } from './WorkerModal';
+import { useUserLocation } from '../hooks/useUserLocation'
 import { Link } from 'react-router';
 
 function Navbar() {
@@ -11,14 +11,27 @@ function Navbar() {
 
   // LocalStorage check karein agar worker pehle se login/register ho chuka hai
   useEffect(() => {
-    const savedWorker = localStorage.getItem('rojgar_worker');
-    if (savedWorker && savedWorker !== "undefined") {
-      try {
-        setCurrentWorker(JSON.parse(savedWorker));
-      } catch (error) {
-        console.error("Failed to parse saved worker", error);
+    const syncWorker = () => {
+      const savedWorker = localStorage.getItem('rojgar_worker');
+      if (savedWorker && savedWorker !== "undefined") {
+        try {
+          setCurrentWorker(JSON.parse(savedWorker));
+        } catch (error) {
+          console.error("Failed to parse saved worker", error);
+          setCurrentWorker(null);
+        }
+      }else{
+        setCurrentWorker(null);
       }
-    }
+    };
+
+      syncWorker();
+
+      window.addEventListener('workerSessionUpdated', syncWorker);
+
+      return () => {
+        window.removeEventListener('workerSessionUpdated', syncWorker);
+    };
   }, []);
 
   const handleWorkerOnline = (workerData) => {
@@ -64,12 +77,12 @@ function Navbar() {
 
       {/* Modal yahin render hoga */}
       <div className='px-5 font-medium'>
-      <WorkerModal
-        isOpen={isWorkerModalOpen}
-        onClose={() => setIsWorkerModalOpen(false)}
-        coords={coords}
-        onWorkerOnline={handleWorkerOnline}
-      />
+        <WorkerModal
+          isOpen={isWorkerModalOpen}
+          onClose={() => setIsWorkerModalOpen(false)}
+          coords={coords}
+          onWorkerOnline={handleWorkerOnline}
+        />
       </div>
     </>
   );

@@ -16,15 +16,30 @@ export default function Home() {
 
   // Check if a worker profile is stored in localStorage
   useEffect(() => {
-    const savedWorker = localStorage.getItem('rojgar_worker');
-    if (savedWorker && savedWorker !== 'undefined') {
-      try {
-        setCurrentWorker(JSON.parse(savedWorker));
-      } catch (error) {
-        console.error("Failed to parse worker session", error);
-        localStorage.removeItem('rojgar_worker');
+    // function to read the session
+    const syncWorkerSession = () => {
+      const savedWorker = localStorage.getItem('rojgar_worker');
+      if (savedWorker && savedWorker !== 'undefined') {
+        try {
+          setCurrentWorker(JSON.parse(savedWorker));
+        } catch (error) {
+          console.error("Failed to parse worker session", error);
+          localStorage.removeItem('rojgar_worker');
+          setCurrentWorker(null);
+        }
+      } else {
+        setCurrentWorker(null);
       }
-    }
+    };
+
+    syncWorkerSession();
+
+    window.addEventListener('workerSessionUpdated', syncWorkerSession);
+
+    // Component screen se hatne (unmount) par listener ko hata do
+    return () => {
+      window.removeEventListener('workerSessionUpdated', syncWorkerSession);
+    };
   }, [])
 
   // Fetch nearby jobs

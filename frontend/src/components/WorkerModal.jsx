@@ -33,8 +33,20 @@ export const WorkerModal = ({ isOpen, onClose, coords, onWorkerOnline }) => {
                     coordinates: [coords.longitude, coords.latitude]
                 }
             });
+            // console.log("Full Backend Response:", res.data);
+            const workerData = res.data.data;
 
-            onWorkerOnline(res.data.worker);
+            // saving the data to local storage
+            if (workerData) {
+                localStorage.setItem('rojgar_worker', JSON.stringify(workerData));
+            }
+
+            window.dispatchEvent(new Event('workerSessionUpdated'));
+
+            if (onWorkerOnline) {
+                onWorkerOnline(workerData);
+            }
+
             onClose();
         } catch (error) {
             setErrorMsg(error.response?.data?.message || "Failed to register worker profile.");

@@ -1,8 +1,11 @@
 import React from 'react'
 import { useState } from 'react'
 import api from '../api/axios'
+import { useDispatch } from 'react-redux';
+import { setWorker } from '../redux/slice/workerSlice';
 
-export const WorkerModal = ({ isOpen, onClose, coords, onWorkerOnline }) => {
+
+export const WorkerModal = ({ isOpen, onClose, coords }) => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -11,7 +14,9 @@ export const WorkerModal = ({ isOpen, onClose, coords, onWorkerOnline }) => {
     });
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
-
+    
+    const dispatch = useDispatch();
+    
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
@@ -41,7 +46,10 @@ export const WorkerModal = ({ isOpen, onClose, coords, onWorkerOnline }) => {
                 localStorage.setItem('rojgar_worker', JSON.stringify(workerData));
             }
 
-            window.dispatchEvent(new Event('workerSessionUpdated'));
+            // window.dispatchEvent(new Event('workerSessionUpdated'));
+
+            // Redux action dispatch!
+            dispatch(setWorker(workerData));
 
             if (onWorkerOnline) {
                 onWorkerOnline(workerData);

@@ -3,41 +3,45 @@ import { useState, useEffect } from 'react'
 import { WorkerModal } from './WorkerModal';
 import { useUserLocation } from '../hooks/useUserLocation'
 import { Link } from 'react-router';
+import { useSelector } from 'react-redux';
 
 function Navbar() {
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
-  const [currentWorker, setCurrentWorker] = useState(null);
   const { coords } = useUserLocation();
+  // const [currentWorker, setCurrentWorker] = useState(null);
+
+  // store se data read krne ke liye
+  const currentWorker = useSelector((state) => state.worker.currentWorker);
 
   // LocalStorage check karein agar worker pehle se login/register ho chuka hai
-  useEffect(() => {
-    const syncWorker = () => {
-      const savedWorker = localStorage.getItem('rojgar_worker');
-      if (savedWorker && savedWorker !== "undefined") {
-        try {
-          setCurrentWorker(JSON.parse(savedWorker));
-        } catch (error) {
-          console.error("Failed to parse saved worker", error);
-          setCurrentWorker(null);
-        }
-      }else{
-        setCurrentWorker(null);
-      }
-    };
+  // useEffect(() => {
+  //   const syncWorker = () => {
+  //     const savedWorker = localStorage.getItem('rojgar_worker');
+  //     if (savedWorker && savedWorker !== "undefined") {
+  //       try {
+  //         setCurrentWorker(JSON.parse(savedWorker));
+  //       } catch (error) {
+  //         console.error("Failed to parse saved worker", error);
+  //         setCurrentWorker(null);
+  //       }
+  //     } else {
+  //       setCurrentWorker(null);
+  //     }
+  //   };
 
-      syncWorker();
+  //   syncWorker();
 
-      window.addEventListener('workerSessionUpdated', syncWorker);
+  //   window.addEventListener('workerSessionUpdated', syncWorker);
 
-      return () => {
-        window.removeEventListener('workerSessionUpdated', syncWorker);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('workerSessionUpdated', syncWorker);
+  //   };
+  // }, []);
 
-  const handleWorkerOnline = (workerData) => {
-    setCurrentWorker(workerData);
-    localStorage.setItem('rojgar_worker', JSON.stringify(workerData))
-  }
+  // const handleWorkerOnline = (workerData) => {
+  //   setCurrentWorker(workerData);
+  //   localStorage.setItem('rojgar_worker', JSON.stringify(workerData))
+  // }
 
   return (
     <>
@@ -81,7 +85,7 @@ function Navbar() {
           isOpen={isWorkerModalOpen}
           onClose={() => setIsWorkerModalOpen(false)}
           coords={coords}
-          onWorkerOnline={handleWorkerOnline}
+          // onWorkerOnline={handleWorkerOnline}
         />
       </div>
     </>

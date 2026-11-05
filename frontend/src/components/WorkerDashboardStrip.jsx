@@ -1,8 +1,10 @@
 import React from 'react'
 import { useState } from 'react'
 import api from '../api/axios'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateWorkerStatus, clearWorker } from '../redux/slice/workerSlice'
 
-export const WorkerDashboardStrip = ({ worker, onStatusChange }) => {
+export const WorkerDashboardStrip = ({ worker }) => {
     const [isOnline, setIsOnline] = useState(worker?.isOnline ?? true);
     const [updating, setUpdating] = useState(false);
 
@@ -19,13 +21,15 @@ export const WorkerDashboardStrip = ({ worker, onStatusChange }) => {
             setIsOnline(newStatus);
 
             // local storage sync
-            const updatedWorker = { ...worker, isOnline: newStatus };
-            localStorage.setItem('rojgar_worker', JSON.stringify(updatedWorker));
-            window.dispatchEvent(new Event('workerSessionUpdated'));
+            // const updatedWorker = { ...worker, isOnline: newStatus };
+            // localStorage.setItem('rojgar_worker', JSON.stringify(updatedWorker));
+            // window.dispatchEvent(new Event('workerSessionUpdated'));
 
-            if (onStatusChange) {
-                onStatusChange(updatedWorker);
-            }
+            // if (onStatusChange) {
+            //     onStatusChange(updatedWorker);
+            // }
+
+            dispatch(updateWorkerStatus(newStatus));
         } catch (error) {
             console.error("Status update failed:", error);
             alert("Failed to change status. Please check your internet connection.");
@@ -75,9 +79,9 @@ export const WorkerDashboardStrip = ({ worker, onStatusChange }) => {
                 <span>{isOnline ? "Nearby contractors can see your radar" : "You are currently hidden from search"}</span>
                 <button
                     onClick={() => {
-                        localStorage.removeItem('rojgar_worker');
-                        window.dispatchEvent(new Event('workerSessionUpdated'));
-                        // window.location.reload();
+                        dispatch(clearWorker());
+                        // localStorage.removeItem('rojgar_worker');
+                        // window.dispatchEvent(new Event('workerSessionUpdated'));
                     }}
                     className="text-red-500 hover:underline"
                 >

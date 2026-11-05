@@ -3,6 +3,8 @@ import api from '../api/axios'
 import { useUserLocation } from '../hooks/useUserLocation';
 import { JobCard } from '../components/JobCard';
 import { WorkerDashboardStrip } from '../components/WorkerDashboardStrip';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateWorkerStatus } from '../redux/slice/workerSlice';
 
 const CATEGORIES = ['All', 'Mason', 'Plumber', 'Carpenter', 'Electrician', 'Helper', 'Construction'];
 
@@ -12,35 +14,38 @@ export default function Home() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [currentWorker, setCurrentWorker] = useState(null);
+  // const [currentWorker, setCurrentWorker] = useState(null);
+
+  const currentWorker = useSelector((state) => state.worker.currentWorker);
+  const dispatch = useDispatch();
 
   // Check if a worker profile is stored in localStorage
-  useEffect(() => {
-    // function to read the session
-    const syncWorkerSession = () => {
-      const savedWorker = localStorage.getItem('rojgar_worker');
-      if (savedWorker && savedWorker !== 'undefined') {
-        try {
-          setCurrentWorker(JSON.parse(savedWorker));
-        } catch (error) {
-          console.error("Failed to parse worker session", error);
-          localStorage.removeItem('rojgar_worker');
-          setCurrentWorker(null);
-        }
-      } else {
-        setCurrentWorker(null);
-      }
-    };
+  // useEffect(() => {
+  //   // function to read the session
+  //   const syncWorkerSession = () => {
+  //     const savedWorker = localStorage.getItem('rojgar_worker');
+  //     if (savedWorker && savedWorker !== 'undefined') {
+  //       try {
+  //         setCurrentWorker(JSON.parse(savedWorker));
+  //       } catch (error) {
+  //         console.error("Failed to parse worker session", error);
+  //         localStorage.removeItem('rojgar_worker');
+  //         setCurrentWorker(null);
+  //       }
+  //     } else {
+  //       setCurrentWorker(null);
+  //     }
+  //   };
 
-    syncWorkerSession();
+  //   syncWorkerSession();
 
-    window.addEventListener('workerSessionUpdated', syncWorkerSession);
+  //   window.addEventListener('workerSessionUpdated', syncWorkerSession);
 
-    // Component screen se hatne (unmount) par listener ko hata do
-    return () => {
-      window.removeEventListener('workerSessionUpdated', syncWorkerSession);
-    };
-  }, [])
+  //   // Component screen se hatne (unmount) par listener ko hata do
+  //   return () => {
+  //     window.removeEventListener('workerSessionUpdated', syncWorkerSession);
+  //   };
+  // }, [])
 
   // Fetch nearby jobs
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function Home() {
       {currentWorker && (
         <WorkerDashboardStrip
           worker={currentWorker}
-          onStatusChange={(updatedWorker) => setCurrentWorker(updatedWorker)}
+          onStatusChange={(updatedWorker) => dispatch(updateWorkerStatus(updatedWorker.isOnline))}
         />
       )}
 

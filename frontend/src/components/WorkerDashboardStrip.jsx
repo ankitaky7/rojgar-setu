@@ -4,9 +4,19 @@ import api from '../api/axios'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateWorkerStatus, clearWorker } from '../redux/slice/workerSlice'
 
-export const WorkerDashboardStrip = ({ worker }) => {
-    const [isOnline, setIsOnline] = useState(worker?.isOnline ?? true);
+export const WorkerDashboardStrip = () => {
+    // const [isOnline, setIsOnline] = useState(worker?.isOnline ?? true);
     const [updating, setUpdating] = useState(false);
+
+    const worker = useSelector((state) => state.worker.currentWorker);
+    const dispatch = useDispatch();
+
+    if(!worker){
+        return null;
+    }
+
+    // taking workerw status from redux
+    const isOnline = worker.isOnline ?? true;
 
     const handleToggle = async () => {
         try {
@@ -18,7 +28,9 @@ export const WorkerDashboardStrip = ({ worker }) => {
                 isOnline: newStatus
             });
 
-            setIsOnline(newStatus);
+            dispatch(updateWorkerStatus(newStatus));
+
+            // setIsOnline(newStatus);
 
             // local storage sync
             // const updatedWorker = { ...worker, isOnline: newStatus };
@@ -28,8 +40,6 @@ export const WorkerDashboardStrip = ({ worker }) => {
             // if (onStatusChange) {
             //     onStatusChange(updatedWorker);
             // }
-
-            dispatch(updateWorkerStatus(newStatus));
         } catch (error) {
             console.error("Status update failed:", error);
             alert("Failed to change status. Please check your internet connection.");

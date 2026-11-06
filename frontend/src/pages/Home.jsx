@@ -83,10 +83,7 @@ export default function Home() {
     <div className="space-y-4 pb-12">
       {/* 0. Worker Dashboard Strip (Agar worker profile active hai) */}
       {currentWorker && (
-        <WorkerDashboardStrip
-          worker={currentWorker}
-          onStatusChange={(updatedWorker) => dispatch(updateWorkerStatus(updatedWorker.isOnline))}
-        />
+        <WorkerDashboardStrip />
       )}
 
       {/* 1. Location Status Strip */}

@@ -57,19 +57,19 @@ const registerOrUpdateWorker = async (req, res) => {
 const toggleWorkerAvailability = async (req, res) => {
     try {
         const { workerId, isOnline } = req.body;
-        
+
         if (!workerId || typeof isOnline !== 'boolean') {
             return res.status(400).json({ message: "Worker ID and status are required" })
         }
 
         const worker = await Worker.findByIdAndUpdate(
             workerId,
-            {isOnline},
-            {returnDocument: "after"}
+            { isOnline },
+            { returnDocument: "after" }
         );
 
-        if(!worker) {
-            return res.status(404).json({message: "Worker not found."});
+        if (!worker) {
+            return res.status(404).json({ message: "Worker not found." });
         }
 
         res.status(200).json({
@@ -83,7 +83,48 @@ const toggleWorkerAvailability = async (req, res) => {
     }
 }
 
+const getNearbyWorkers = async (req, res) => {
+    try {
+        const { latitude, longitude, radius, skill } = req.query;
+
+        if (!latitude || !longitude) {
+            return res.status(400).json({ message: "Latitude and longitude are required." });
+        }
+
+        const maxDistanceInMeters = parseInt(radius) || 10000;
+
+        const query = {
+            isOnline: true,
+            location: {
+                $nearSphere: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [parseFloat(longitude), parseFloat(latitude)]
+                    },
+                    $maxDistance: maxDistanceInMeters
+                }
+            }
+        };
+
+        if (skill && skill !== 'All') {
+            query.skill = skill;
+        }
+
+        const workers = await Worker.find(query).select('-__v');
+
+        res.status(200).json({
+            success: true,
+            count: workers.length,
+            data: workers
+        })
+
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch nearby workers.", error: error.message });
+    }
+}
+
 module.exports = {
     registerOrUpdateWorker,
-    toggleWorkerAvailability
+    toggleWorkerAvailability,
+    getNearbyWorkers
 };

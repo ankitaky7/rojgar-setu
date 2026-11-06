@@ -51,9 +51,9 @@ export const WorkerModal = ({ isOpen, onClose, coords }) => {
             // Redux action dispatch!
             dispatch(setWorker(workerData));
 
-            if (onWorkerOnline) {
-                onWorkerOnline(workerData);
-            }
+            // if (onWorkerOnline) {
+            //     onWorkerOnline(workerData);
+            // }
 
             onClose();
         } catch (error) {

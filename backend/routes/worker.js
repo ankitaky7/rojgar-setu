@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { registerOrUpdateWorker, toggleWorkerAvailability } = require('../controllers/workerController');
+const { registerOrUpdateWorker, toggleWorkerAvailability, getNearbyWorkers } = require('../controllers/workerController');
 
 // worker route
 router.post('/onboard', registerOrUpdateWorker);
-router.post('/toggle-status', toggleWorkerAvailability);
+router.patch('/toggle-status', toggleWorkerAvailability);
+router.get('/nearby', getNearbyWorkers);
 
 module.exports = router;

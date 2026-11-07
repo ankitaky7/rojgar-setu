@@ -4,7 +4,8 @@ import { useUserLocation } from '../hooks/useUserLocation';
 import { JobCard } from '../components/JobCard';
 import { WorkerDashboardStrip } from '../components/WorkerDashboardStrip';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateWorkerStatus } from '../redux/slice/workerSlice';
+import { RadarMap } from '../components/RadarMap';
+// import { updateWorkerStatus } from '../redux/slice/workerSlice';
 
 const CATEGORIES = ['All', 'Mason', 'Plumber', 'Carpenter', 'Electrician', 'Helper', 'Construction'];
 
@@ -16,8 +17,11 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   // const [currentWorker, setCurrentWorker] = useState(null);
 
+  // View toggle: 'list' (Jobs Feed) or 'map' (Radar View)
+  const [viewMode, setViewMode] = useState('list');
+
   const currentWorker = useSelector((state) => state.worker.currentWorker);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   // Check if a worker profile is stored in localStorage
   // useEffect(() => {
@@ -121,6 +125,36 @@ export default function Home() {
         )}
       </div>
 
+      {/* 3. View Switcher Header (List View vs Radar Map) */}
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${viewMode === 'list'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
+          >
+            📋 Feed
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('map')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${viewMode === 'map'
+              ? 'bg-amber-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
+          >
+            🗺️ Radar Map
+          </button>
+        </div>
+
+        <span className="text-xs font-semibold text-slate-500">
+          {viewMode === 'list' ? `${filteredJobs.length} Gigs Available` : 'Nearby Workers'}
+        </span>
+      </div>
+
       {/* 2. Category Filter Pills */}
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         {CATEGORIES.map((cat) => (
@@ -137,36 +171,52 @@ export default function Home() {
         ))}
       </div>
 
-      {/* 3. Jobs Feed */}
-      <div>
-        {jobsLoading && (
-          <div className="text-center py-10 text-slate-500 text-xs">
-            <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            Finding Nearby Jobs...
-          </div>
-        )}
+      {/* 5. Main Content: Radar Map OR Jobs Feed */}
+      {viewMode === 'map' ? (
+        <RadarMap
+          userCoords={coords}
+          locError={locError}
+          onRetry={refreshLocation}
+          selectedSkill={selectedCategory}
+        />
+      ) : (
+        <div>
+          {jobsLoading && (
+            <div className="text-center py-10 text-slate-500 text-xs">
+              <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              Scanning for nearby open requirements...
+            </div>
+          )}
 
-        {jobsError && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600">
-            {jobsError}
-          </div>
-        )}
+          {jobsError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600">
+              {jobsError}
+            </div>
+          )}
 
-        {!jobsLoading && !jobsError && coords.latitude && filteredJobs.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
-            <p className="font-bold text-slate-800 text-sm">No Jobs have been Found</p>
-            <p className="text-xs text-slate-400 mt-1">
-              No requirements found in this category near your location.
-            </p>
-          </div>
-        )}
+          {!jobsLoading && !jobsError && coords.latitude && filteredJobs.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
+              <p className="font-bold text-slate-800 text-sm">No Jobs have been Found</p>
+              <p className="text-xs text-slate-400 mt-1">
+                No requirements found in this category near your location.
+              </p>
+            </div>
+          )}
 
-        <div className="space-y-3">
-          {filteredJobs.map((job) => (
-            <JobCard key={job._id} job={job} />
-          ))}
+          <div className="space-y-3">
+            {filteredJobs.map((job) => (
+              <JobCard
+                key={job._id}
+                job={job}
+                currentWorker={currentWorker}
+                onJobClaimed={(updatedJob) => {
+                  setJobs(prev => prev.map(j => j._id === updatedJob._id ? updatedJob : j));
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );
